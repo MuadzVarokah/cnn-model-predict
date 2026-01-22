@@ -3,18 +3,14 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# ===============================
 # Page config
-# ===============================
 st.set_page_config(
     page_title="Klasifikasi Kucing vs Anjing",
     page_icon="🐱",
     layout="centered"
 )
 
-# ===============================
 # Custom CSS
-# ===============================
 st.markdown("""
 <style>
 .main {
@@ -47,33 +43,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ===============================
-# Load model (SAFE)
-# ===============================
-
-
+# Load model
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model(
-        "cats_vs_dogs_model.keras",
-        compile=False
-    )
+    return tf.keras.models.load_model("cats_vs_dogs_model.keras", compile=False)
 
 
 model = load_model()
 
-# ===============================
 # Title
-# ===============================
-st.markdown("<div class='title'>Kucing vs Anjing</div>",
-            unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Upload gambar kucing atau anjing dan biarkan AI menebak</div>",
-            unsafe_allow_html=True)
+st.markdown("<div class='title'>Kucing vs Anjing</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Upload gambar kucing atau anjing dan biarkan AI menebak</div>", unsafe_allow_html=True)
 st.markdown("---")
 
-# ===============================
 # Upload image
-# ===============================
 uploaded_file = st.file_uploader(
     "Upload gambar (jpg / png)",
     type=["jpg", "jpeg", "png"]
@@ -85,25 +68,19 @@ if uploaded_file:
     with col2:
         st.image(image, caption="Gambar yang diupload", width=400)
 
-    # ===============================
     # Preprocess
-    # ===============================
     img = image.resize((224, 224))
     img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
-    # ===============================
     # Prediction
-    # ===============================
     with st.spinner("Menganalisis gambar..."):
         pred = model.predict(img_array)[0][0]
 
     cat_conf = 1 - pred
     dog_conf = pred
 
-    # ===============================
     # Result UI
-    # ===============================
     if pred > 0.5:
         st.markdown(
             f"""
@@ -125,9 +102,7 @@ if uploaded_file:
             unsafe_allow_html=True
         )
 
-    # ===============================
     # Confidence bars
-    # ===============================
     st.markdown("<h3>Confidence Level</h3>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -141,8 +116,6 @@ if uploaded_file:
 else:
     st.info("Silakan upload gambar kucing atau anjing")
 
-# ===============================
 # Footer
-# ===============================
 st.markdown("---")
 st.caption("Model: MobileNetV2 + Hyperparameter Tuning | TensorFlow")
